@@ -77,17 +77,49 @@ end
 a2 = sigmoid(X*Theta1');
 a2 = [ones(m, 1) a2];
 sigh = sigmoid(a2*Theta2');
-J = sum(sum( ((-yk' .* log(sigh)) - (1-yk').*log(1 - sigh))  ./ m ));
-  
-  %theta1 = [0 ; theta(2:size(theta), :)];
-  
-  %grad = ( ((sigh - y)' * X) ./m ) + ( (theta1'*lambda) ./m );
 
+%Note that you should not be regularizing the terms that correspond to the bias.
+t1 = Theta1(:,2:size(Theta1,2));
+t2 = Theta2(:,2:size(Theta2,2));
 
-% -------------------------------------------------------------
+J = sum(sum( ((-yk' .* log(sigh)) - (1-yk').*log(1 - sigh))  ./ m )) + ( lambda * (sum( sum (t1.^2)) + sum( sum ( t2.^2 ))) / (2*m) );
 
 % =========================================================================
 
+%Backpropagation
+for t = 1:m
+  %step 1 : 
+  a1 = X(t,:); %already have a bias 
+ 
+  z2 = Theta1 * a1';
+  
+  a2 = sigmoid(z2);
+
+  a2 = [1 ; a2]; %bias
+
+  z3 = Theta2 * a2;
+  a3 = sigmoid(z3);
+    
+  %step 2
+  delta3 = a3 - yk(:,t);
+    
+  %step 3
+  z2 = [1 ; z2]; %add bias
+  delta2 = (Theta2' * delta3) .* sigmoidGradient(z2);
+
+  %step 4
+  delta2 = delta2(2:end);
+   
+  Theta2_grad = Theta2_grad +  delta3 * a2';
+  Theta1_grad = Theta1_grad + delta2 * a1;
+  
+  
+end
+
+  %step 5
+Theta1_grad = Theta1_grad ./ m;
+Theta2_grad = Theta2_grad ./m;
+  
 % Unroll gradients
 grad = [Theta1_grad(:) ; Theta2_grad(:)];
 
