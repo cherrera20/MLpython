@@ -88,7 +88,8 @@ J = sum(sum( ((-yk' .* log(sigh)) - (1-yk').*log(1 - sigh))  ./ m )) + ( lambda 
 
 %Backpropagation
 for t = 1:m
-  %step 1 : 
+  
+  %step 1  
   a1 = X(t,:); %already have a bias 
  
   z2 = Theta1 * a1';
@@ -116,10 +117,20 @@ for t = 1:m
   
 end
 
-  %step 5
-Theta1_grad = Theta1_grad ./ m;
-Theta2_grad = Theta2_grad ./m;
-  
+ %step 5
+
+  %Theta1_grad = Theta1_grad ./m;
+  %Theta2_grad = Theta2_grad ./m;
+
+%Regularized gradient
+Theta1_grad(:, 1) = Theta1_grad(:, 1) ./m;
+
+Theta1_grad(:, 2:end) = Theta1_grad(:, 2:end) ./m + ( (lambda/m) * Theta1(:, 2:end) );
+
+Theta2_grad(:, 1) = Theta2_grad(:, 1) ./m;
+Theta2_grad(:, 2:end)  = Theta2_grad(:, 2:end)  ./m + ( (lambda/m) * Theta2(:, 2:end) );
+
+
 % Unroll gradients
 grad = [Theta1_grad(:) ; Theta2_grad(:)];
 
